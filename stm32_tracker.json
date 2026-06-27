@@ -1,0 +1,542 @@
+{
+  "weeks": [
+    {
+      "id": "b2vrxgn",
+      "label": "Week 1",
+      "title": "STM32 basics",
+      "board": "NUCLEO-F401RE",
+      "color": "blue",
+      "goal": "Get comfortable with STM32CubeIDE and HAL. Understand the F401 clock tree. Write GPIO, UART, and timer code without looking at examples.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "o64fnrn",
+          "text": "Install STM32CubeIDE and CubeMX",
+          "done": false
+        },
+        {
+          "id": "vcyy5ik",
+          "text": "Create first project: GPIO + LED blink via HAL",
+          "done": false
+        },
+        {
+          "id": "r9eeoe0",
+          "text": "Configure UART with printf redirect",
+          "done": false
+        },
+        {
+          "id": "pkd41qj",
+          "text": "Use TIM interrupt to toggle LED at precise interval",
+          "done": false
+        },
+        {
+          "id": "v8i51np",
+          "text": "Read datasheet: F401 clock tree and RCC registers",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "8s2h1aw",
+      "label": "Week 2",
+      "title": "I2C + VL53L5CX ToF",
+      "board": "F401 + X-NUCLEO-53L5A1",
+      "color": "blue",
+      "goal": "Stack the ToF shield and get live 8×8 zone data over UART. Understand I2C framing and the ULD driver API.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "sbvbl9i",
+          "text": "Stack X-NUCLEO-53L5A1 shield onto Nucleo",
+          "done": false
+        },
+        {
+          "id": "cwkzfjh",
+          "text": "Import ST VL53L5CX ULD driver into project",
+          "done": false
+        },
+        {
+          "id": "4sncq78",
+          "text": "Configure I2C1 at 400 kHz via CubeMX",
+          "done": false
+        },
+        {
+          "id": "q0wuh3h",
+          "text": "Read 8×8 zone distance array and print over UART",
+          "done": false
+        },
+        {
+          "id": "5hd6s7e",
+          "text": "Add threshold logic: object < 500 mm → LED on",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "8fo28cy",
+      "label": "Week 3",
+      "title": "Interrupts + DMA",
+      "board": "NUCLEO-F401RE",
+      "color": "blue",
+      "goal": "Move from polling to interrupt-driven and DMA-backed code. Measure IRQ latency with logic analyzer.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "v9d8ifo",
+          "text": "Configure EXTI interrupt on user button (PA0)",
+          "done": false
+        },
+        {
+          "id": "ribesue",
+          "text": "Set up TIM3 PWM output on PA6",
+          "done": false
+        },
+        {
+          "id": "k4fh362",
+          "text": "Configure DMA for UART TX (non-blocking sends)",
+          "done": false
+        },
+        {
+          "id": "bpg35r5",
+          "text": "Map average ToF zone distance to PWM duty cycle",
+          "done": false
+        },
+        {
+          "id": "muenb5k",
+          "text": "Profile IRQ latency with logic analyzer",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "fw3lhb0",
+      "label": "Week 4",
+      "title": "FreeRTOS",
+      "board": "NUCLEO-F401RE",
+      "color": "blue",
+      "goal": "Run three concurrent tasks communicating through a queue and semaphore. Understand stack sizing and priority.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "yp1wtir",
+          "text": "Enable FreeRTOS via CubeMX (CMSIS-OS v2)",
+          "done": false
+        },
+        {
+          "id": "hn11n98",
+          "text": "Task 1: read ToF every 100 ms",
+          "done": false
+        },
+        {
+          "id": "sfb0qwy",
+          "text": "Task 2: process 8×8 zones, compute centroid",
+          "done": false
+        },
+        {
+          "id": "dujs5ky",
+          "text": "Task 3: UART log via message queue",
+          "done": false
+        },
+        {
+          "id": "sehtkoo",
+          "text": "Add binary semaphore between Task 1 and Task 2",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "fe6gcfs",
+      "label": "Week 5",
+      "title": "Low-power patterns",
+      "board": "NUCLEO-L4R5ZI-P",
+      "color": "teal",
+      "goal": "Get the MCU into Stop 2, wake on RTC, measure real current. Target < 10 µA in sleep.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "246joel",
+          "text": "Move ToF shield to L4R5ZI-P",
+          "done": false
+        },
+        {
+          "id": "6m9l6z2",
+          "text": "Configure RTC with LSE crystal in CubeMX",
+          "done": false
+        },
+        {
+          "id": "5szmjvq",
+          "text": "Enter Stop 2 mode after each ToF read",
+          "done": false
+        },
+        {
+          "id": "i1xebl7",
+          "text": "Wake on RTC alarm every 30 seconds",
+          "done": false
+        },
+        {
+          "id": "7h0b1kx",
+          "text": "Measure Stop 2 current with multimeter",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "htg8s5p",
+      "label": "Week 6",
+      "title": "TrustZone security",
+      "board": "NUCLEO-U545RE-Q",
+      "color": "coral",
+      "goal": "Understand SAU partitioning. Store secrets in Secure world, expose only a signed payload to Non-Secure.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "egodnsb",
+          "text": "Set up TrustZone partition in CubeMX (SAU regions)",
+          "done": false
+        },
+        {
+          "id": "5m5384e",
+          "text": "Secure project: store fake device key in Secure SRAM",
+          "done": false
+        },
+        {
+          "id": "dcrliyl",
+          "text": "Non-Secure project: call Secure API via NSC function",
+          "done": false
+        },
+        {
+          "id": "do5x6eu",
+          "text": "Implement HMAC-like signing of ToF payload",
+          "done": false
+        },
+        {
+          "id": "iuw1um4",
+          "text": "Print signed payload in Non-Secure UART log",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "w2mc6x9",
+      "label": "Week 7",
+      "title": "Wi-Fi + MQTT",
+      "board": "B-U585I-IOT02A",
+      "color": "violet",
+      "goal": "Get the Discovery board publishing sensor data over Wi-Fi to an MQTT broker. Verify end-to-end in MQTT Explorer.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "z4lyun9",
+          "text": "Install Mosquitto broker on PC or use HiveMQ",
+          "done": false
+        },
+        {
+          "id": "i49gka3",
+          "text": "Move ToF shield to Discovery board Arduino headers",
+          "done": false
+        },
+        {
+          "id": "uc1heij",
+          "text": "Init Wi-Fi (MXCHIP EMW3080) with AT commands",
+          "done": false
+        },
+        {
+          "id": "ngs4awp",
+          "text": "Connect to broker and publish to stm32/tof",
+          "done": false
+        },
+        {
+          "id": "uq17q4u",
+          "text": "Verify messages in MQTT Explorer",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "wy74ue5",
+      "label": "Week 8",
+      "title": "Capstone — full IoT node",
+      "board": "B-U585I-IOT02A",
+      "color": "violet",
+      "goal": "Tie everything together: FreeRTOS + ToF + onboard sensors + Wi-Fi MQTT + BLE beacon + low-power sleep between cycles.",
+      "notes": "",
+      "tasks": [
+        {
+          "id": "pkzayjm",
+          "text": "FreeRTOS Task 1: read ToF every 100 ms",
+          "done": false
+        },
+        {
+          "id": "if2gf01",
+          "text": "FreeRTOS Task 2: read HTS221 + LPS22HH",
+          "done": false
+        },
+        {
+          "id": "mxc4952",
+          "text": "Task 3: build JSON {temp, humidity, pressure, presence}",
+          "done": false
+        },
+        {
+          "id": "swn23nc",
+          "text": "Task 4: publish via Wi-Fi MQTT on presence event",
+          "done": false
+        },
+        {
+          "id": "ux3naef",
+          "text": "Configure BLE to advertise beacon on detection",
+          "done": false
+        },
+        {
+          "id": "2e9ihqn",
+          "text": "Add Stop mode between cycles, wake on ToF interrupt",
+          "done": false
+        },
+        {
+          "id": "zy7isp7",
+          "text": "End-to-end test: sensor → MQTT + BLE simultaneously",
+          "done": false
+        }
+      ],
+      "days": [
+        {
+          "name": "Mon",
+          "tasks": []
+        },
+        {
+          "name": "Tue",
+          "tasks": []
+        },
+        {
+          "name": "Wed",
+          "tasks": []
+        },
+        {
+          "name": "Thu",
+          "tasks": []
+        },
+        {
+          "name": "Fri",
+          "tasks": []
+        },
+        {
+          "name": "Sat",
+          "tasks": []
+        },
+        {
+          "name": "Sun",
+          "tasks": []
+        }
+      ]
+    }
+  ]
+}
