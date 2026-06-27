@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STM32 Learning Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-family:inherit}
+
+/* ── Tokens ── */
+:root{
+  --bg:        #0b0d10;
+  --sidebar:   #0f1116;
+  --surface:   #13161c;
+  --card:      #181c24;
+  --card2:     #1d2230;
+  --border:    #222733;
+  --border2:   #2c3345;
+  --text:      #dde1ec;
+  --sub:       #8892a8;
+  --dim:       #424d62;
+  --accent:    #3d7ef5;
+  --accent-d:  #1a2f5e;
+  --accent-t:  #7aabff;
+  --green:     #1fba7a;
+  --green-d:   #0a2e1e;
+  --green-t:   #4fd4a0;
+  --amber:     #e09030;
+  --amber-d:   #2e1e08;
+  --amber-t:   #f0b864;
+  --coral:     #e05545;
+  --coral-d:   #2e100a;
+  --coral-t:   #f08070;
+  --violet:    #7c5cbf;
+  --violet-d:  #1a1230;
+  --violet-t:  #a990e0;
+  --teal:      #1ab8a0;
+  --teal-d:    #082820;
+  --teal-t:    #4dd4c0;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',sans-serif;
+  --radius:8px;
+  --sidebar-w:260px;
+}
+
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+
+/* ── Top bar ── */
+.topbar{
+  height:48px;min-height:48px;
+  background:var(--sidebar);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 16px;gap:12px;
+  z-index:10;
+}
+.topbar-logo{
+  font-family:var(--mono);font-size:13px;font-weight:600;
+  color:var(--accent-t);letter-spacing:0.04em;
+}
+.topbar-logo span{color:var(--dim);font-weight:400}
+.topbar-spacer{flex:1}
+.topbar-prog{display:flex;align-items:center;gap:10px}
+.topbar-track{width:120px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.topbar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+.topbar-pct{font-family:var(--mono);font-size:11px;color:var(--sub);min-width:32px;text-align:right}
+.btn-icon{
+  background:none;border:1px solid var(--border);color:var(--sub);
+  border-radius:var(--radius);padding:5px 10px;font-size:12px;
+  transition:border-color .15s,color .15s;
+}
+.btn-icon:hover{border-color:var(--border2);color:var(--text)}
+
+/* ── Layout ── */
+.layout{display:flex;flex:1;overflow:hidden}
+
+/* ── Sidebar ── */
+.sidebar{
+  width:var(--sidebar-w);min-width:var(--sidebar-w);
+  background:var(--sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.sidebar-head{
+  padding:14px 14px 10px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-title{font-size:11px;font-weight:500;color:var(--dim);text-transform:uppercase;letter-spacing:.1em}
+.sidebar-stats{display:flex;gap:6px;margin-top:8px}
+.s-stat{
+  flex:1;background:var(--card);border:1px solid var(--border);
+  border-radius:6px;padding:6px 8px;
+}
+.s-stat-n{font-family:var(--mono);font-size:16px;font-weight:500;line-height:1}
+.s-stat-l{font-size:10px;color:var(--sub);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+.sidebar-list{flex:1;overflow-y:auto;padding:8px 8px}
+.sidebar-list::-webkit-scrollbar{width:3px}
+.sidebar-list::-webkit-scrollbar-track{background:transparent}
+.sidebar-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+.week-item{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:var(--radius);
+  cursor:pointer;transition:background .12s;
+  margin-bottom:2px;position:relative;
+}
+.week-item:hover{background:var(--surface)}
+.week-item.active{background:var(--card)}
+.week-item.active::before{
+  content:'';position:absolute;left:0;top:6px;bottom:6px;
+  width:2px;border-radius:0 2px 2px 0;background:var(--accent);
+}
+.wi-dot{width:8px;height:8px;min-width:8px;border-radius:50%;border:2px solid var(--dim)}
+.wi-info{flex:1;min-width:0}
+.wi-label{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wi-sub{font-size:10px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.wi-badge{
+  font-family:var(--mono);font-size:10px;padding:2px 5px;
+  border-radius:4px;white-space:nowrap;flex-shrink:0;
+}
+.sidebar-add{
+  padding:10px 8px;border-top:1px solid var(--border);
+}
+.btn-add-week{
+  width:100%;background:none;border:1px dashed var(--border2);
+  color:var(--sub);border-radius:var(--radius);padding:7px;
+  font-size:12px;transition:border-color .15s,color .15s;
+}
+.btn-add-week:hover{border-color:var(--accent);color:var(--accent-t)}
+
+/* ── Main ── */
+.main{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:20px}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* ── Empty state ── */
+.empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;color:var(--dim);
+}
+.empty-icon{font-size:40px;line-height:1}
+.empty-title{font-size:16px;font-weight:500;color:var(--sub)}
+.empty-sub{font-size:13px;text-align:center;max-width:280px;line-height:1.6}
+
+/* ── Week header ── */
+.week-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.week-hdr-left{flex:1;min-width:0}
+.week-eyebrow{
+  font-family:var(--mono);font-size:10px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.1em;
+  margin-bottom:6px;display:flex;align-items:center;gap:8px;
+}
+.board-chip{
+  font-family:var(--mono);font-size:10px;padding:2px 7px;
+  border-radius:3px;border:1px solid;
+}
+.week-name-wrap{display:flex;align-items:center;gap:8px}
+.week-name{
+  font-size:22px;font-weight:600;letter-spacing:-.02em;
+  line-height:1.2;outline:none;
+  border:none;background:transparent;color:var(--text);
+  flex:1;min-width:0;
+}
+.week-name::placeholder{color:var(--dim)}
+.edit-hint{font-size:11px;color:var(--dim);margin-top:2px}
+
+.week-hdr-right{display:flex;gap:8px;flex-shrink:0;align-items:flex-start;padding-top:4px}
+.btn-danger{
+  background:none;border:1px solid var(--coral-d);color:var(--coral-t);
+  border-radius:var(--radius);padding:5px 10px;font-size:12px;
+  transition:background .15s,border-color .15s;
+}
+.btn-danger:hover{background:var(--coral-d);border-color:var(--coral)}
+
+/* ── Ring progress ── */
+.ring-wrap{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.ring-svg{flex-shrink:0}
+.ring-bg{fill:none;stroke:var(--border2);stroke-width:4}
+.ring-fg{fill:none;stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .5s ease;transform:rotate(-90deg);transform-origin:50% 50%}
+.ring-label{font-family:var(--mono);font-size:13px;font-weight:600;fill:var(--text)}
+.ring-sub{font-family:var(--mono);font-size:9px;fill:var(--sub)}
+.ring-info{display:flex;flex-direction:column;gap:4px}
+.ring-title{font-size:14px;font-weight:500}
+.ring-detail{font-size:12px;color:var(--sub);font-family:var(--mono)}
+
+/* ── Section ── */
+.section{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.section-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.section-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);flex:1}
+.btn-sm{
+  background:none;border:1px solid var(--border);color:var(--sub);
+  border-radius:6px;padding:3px 9px;font-size:11px;
+  transition:border-color .15s,color .15s;
+}
+.btn-sm:hover{border-color:var(--border2);color:var(--text)}
+.btn-primary{
+  background:var(--accent);border:none;color:#fff;
+  border-radius:6px;padding:3px 10px;font-size:11px;font-weight:500;
+  transition:opacity .15s;
+}
+.btn-primary:hover{opacity:.85}
+
+/* ── Goal textarea ── */
+.goal-area{
+  width:100%;min-height:80px;background:transparent;border:none;
+  color:var(--text);font-size:14px;line-height:1.7;
+  padding:12px 14px;resize:vertical;outline:none;
+}
+.goal-area::placeholder{color:var(--dim)}
+
+/* ── Days grid ── */
+.days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.day-col{border-right:1px solid var(--border)}
+.day-col:last-child{border-right:none}
+.day-head{
+  padding:7px 10px;border-bottom:1px solid var(--border);
+  font-family:var(--mono);font-size:10px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.08em;
+  display:flex;flex-direction:column;gap:2px;
+}
+.day-name-row{display:flex;align-items:center;justify-content:space-between}
+.day-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0}
+.day-dot.done-day{background:var(--green)}
+.day-body{padding:8px 6px;display:flex;flex-direction:column;gap:5px;min-height:90px}
+.day-task{
+  display:flex;align-items:flex-start;gap:5px;
+  background:var(--card2);border:1px solid var(--border2);
+  border-radius:5px;padding:5px 6px;
+  font-size:11px;line-height:1.4;
+  transition:opacity .15s;
+}
+.day-task.done-task{opacity:.45}
+.day-task input[type=checkbox]{
+  appearance:none;width:12px;height:12px;min-width:12px;
+  border:1.5px solid var(--dim);border-radius:2px;margin-top:1px;
+  cursor:pointer;position:relative;background:transparent;
+  transition:background .12s,border-color .12s;
+}
+.day-task input[type=checkbox]:checked{background:var(--green);border-color:var(--green)}
+.day-task input[type=checkbox]:checked::after{
+  content:'';position:absolute;left:2px;top:0px;
+  width:4px;height:7px;border:1.5px solid #0b0d10;
+  border-top:none;border-left:none;transform:rotate(45deg);
+}
+.day-task-text{font-size:11px;color:var(--text);cursor:pointer;flex:1;word-break:break-word}
+.day-task-del{
+  background:none;border:none;color:var(--dim);font-size:13px;
+  padding:0 1px;line-height:1;margin-top:-1px;flex-shrink:0;
+  transition:color .12s;display:none;
+}
+.day-task:hover .day-task-del{display:block}
+.day-task-del:hover{color:var(--coral-t)}
+.day-add-btn{
+  background:none;border:1px dashed var(--border);color:var(--dim);
+  border-radius:4px;padding:3px 0;font-size:10px;width:100%;
+  transition:border-color .12s,color .12s;
+}
+.day-add-btn:hover{border-color:var(--accent);color:var(--accent-t)}
+
+/* ── Tasks list ── */
+.task-row{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:9px 14px;border-bottom:1px solid var(--border);
+  transition:background .12s;
+}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{background:var(--surface)}
+.task-cb{
+  appearance:none;width:15px;height:15px;min-width:15px;
+  border:1.5px solid var(--dim);border-radius:3px;margin-top:1px;
+  cursor:pointer;position:relative;background:transparent;
+  transition:background .12s,border-color .12s;
+}
+.task-cb:checked{background:var(--green);border-color:var(--green)}
+.task-cb:checked::after{
+  content:'';position:absolute;left:3px;top:0px;
+  width:5px;height:9px;border:2px solid #0b0d10;
+  border-top:none;border-left:none;transform:rotate(45deg);
+}
+.task-text{font-size:13px;line-height:1.6;flex:1;cursor:pointer;outline:none}
+.task-text[contenteditable=true]:focus{
+  background:var(--card2);border-radius:4px;padding:1px 4px;margin:-1px -4px;
+}
+.task-text.done-text{color:var(--dim);text-decoration:line-through}
+.task-actions{display:flex;gap:4px;opacity:0;transition:opacity .12s;flex-shrink:0}
+.task-row:hover .task-actions{opacity:1}
+.task-del{
+  background:none;border:none;color:var(--dim);font-size:14px;
+  padding:2px 4px;border-radius:4px;transition:color .12s,background .12s;
+}
+.task-del:hover{color:var(--coral-t);background:var(--coral-d)}
+
+/* ── Add task ── */
+.add-task-row{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  border-top:1px solid var(--border);background:var(--surface);
+}
+.add-task-input{
+  flex:1;background:transparent;border:none;color:var(--text);
+  font-size:13px;outline:none;
+}
+.add-task-input::placeholder{color:var(--dim)}
+
+/* ── Notes ── */
+.notes-area{
+  width:100%;min-height:72px;background:transparent;border:none;
+  color:var(--text);font-size:13px;line-height:1.7;
+  padding:10px 14px;resize:vertical;outline:none;
+  font-family:var(--mono);
+}
+.notes-area::placeholder{color:var(--dim)}
+
+/* ── Modal ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  z-index:100;backdrop-filter:blur(2px);
+}
+.modal-bg.hidden{display:none}
+.modal{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:12px;padding:24px;width:460px;max-width:95vw;
+  display:flex;flex-direction:column;gap:14px;
+}
+.modal h2{font-size:16px;font-weight:500}
+.modal label{font-size:12px;color:var(--sub);display:block;margin-bottom:4px}
+.modal input,.modal select,.modal textarea{
+  width:100%;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);border-radius:var(--radius);padding:8px 10px;
+  font-size:13px;outline:none;
+  transition:border-color .15s;
+}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--accent)}
+.modal select option{background:var(--card)}
+.modal-row{display:flex;gap:8px;justify-content:flex-end}
+.btn-cancel{
+  background:none;border:1px solid var(--border2);color:var(--sub);
+  border-radius:var(--radius);padding:7px 16px;font-size:13px;
+  transition:border-color .15s,color .15s;
+}
+.btn-cancel:hover{border-color:var(--border2);color:var(--text)}
+.btn-save{
+  background:var(--accent);border:none;color:#fff;
+  border-radius:var(--radius);padding:7px 20px;font-size:13px;font-weight:500;
+  transition:opacity .15s;
+}
+.btn-save:hover{opacity:.85}
+
+/* ── Toast ── */
+.toast{
+  position:fixed;bottom:20px;right:20px;
+  background:var(--card2);border:1px solid var(--border2);
+  color:var(--text);font-size:12px;font-family:var(--mono);
+  padding:8px 14px;border-radius:var(--radius);
+  opacity:0;transform:translateY(8px);
+  transition:opacity .2s,transform .2s;pointer-events:none;z-index:200;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+@media(max-width:640px){
+  .sidebar{width:200px;min-width:200px}
+  .main{padding:14px}
+  .days-grid{grid-template-columns:repeat(3,1fr)}
+  .day-col:nth-child(3){border-right:none}
+  .day-col:nth-child(6){border-right:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <span class="topbar-logo">STM32<span>/tracker</span></span>
+  <div class="topbar-spacer"></div>
+  <div class="topbar-prog">
+    <div class="topbar-track"><div class="topbar-fill" id="top-fill"></div></div>
+    <span class="topbar-pct" id="top-pct">0%</span>
+  </div>
+  <button class="btn-icon" onclick="exportData()">Export</button>
+  <button class="btn-icon" onclick="triggerImport()">Import</button>
+  <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+</div>
+
+<!-- Layout -->
+<div class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-title">Program</div>
+      <div class="sidebar-stats">
+        <div class="s-stat"><div class="s-stat-n" id="sb-weeks">0</div><div class="s-stat-l">Weeks</div></div>
+        <div class="s-stat"><div class="s-stat-n" id="sb-done">0</div><div class="s-stat-l">Done</div></div>
+        <div class="s-stat"><div class="s-stat-n" id="sb-pct">0%</div><div class="s-stat-l">Pct</div></div>
+      </div>
+    </div>
+    <div class="sidebar-list" id="sidebar-list"></div>
+    <div class="sidebar-add">
+      <button class="btn-add-week" onclick="openAddWeek()">+ Add week</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main">
+    <div class="empty" id="empty-state">
+      <div class="empty-icon">⬡</div>
+      <div class="empty-title">No week selected</div>
+      <div class="empty-sub">Pick a week from the sidebar or add your first one to get started.</div>
+    </div>
+    <div id="week-view" style="display:none;display:flex;flex-direction:column;gap:18px"></div>
+  </div>
+</div>
+
+<!-- Add/Edit Week Modal -->
+<div class="modal-bg hidden" id="week-modal">
+  <div class="modal">
+    <h2 id="modal-title">Add week</h2>
+    <div>
+      <label>Week label</label>
+      <input id="m-label" placeholder="e.g. Week 1–2" maxlength="40">
+    </div>
+    <div>
+      <label>Title</label>
+      <input id="m-title" placeholder="e.g. STM32 basics" maxlength="60">
+    </div>
+    <div>
+      <label>Board / hardware</label>
+      <input id="m-board" placeholder="e.g. NUCLEO-F401RE" maxlength="60">
+    </div>
+    <div>
+      <label>Color theme</label>
+      <select id="m-color">
+        <option value="blue">Blue — F4 / general</option>
+        <option value="teal">Teal — low power (L4)</option>
+        <option value="coral">Coral — security (U5)</option>
+        <option value="violet">Violet — IoT capstone</option>
+        <option value="amber">Amber — custom</option>
+        <option value="green">Green — done</option>
+      </select>
+    </div>
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveWeek()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add day task modal -->
+<div class="modal-bg hidden" id="day-modal">
+  <div class="modal">
+    <h2>Add daily task</h2>
+    <div>
+      <label>Task description</label>
+      <input id="dm-text" placeholder="e.g. Configure I2C1 at 400 kHz" maxlength="120">
+    </div>
+    <div class="modal-row">
+      <button class="btn-cancel" onclick="closeDayModal()">Cancel</button>
+      <button class="btn-save" onclick="saveDayTask()">Add</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const SK = 'stm32_tracker_v2';
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+const COLORS = {
+  blue:   {dot:'#3d7ef5', text:'#7aabff', dim:'#1a2f5e', border:'#1e3a6a'},
+  teal:   {dot:'#1ab8a0', text:'#4dd4c0', dim:'#082820',  border:'#0d3325'},
+  coral:  {dot:'#e05545', text:'#f08070', dim:'#2e100a',  border:'#4a1e10'},
+  violet: {dot:'#7c5cbf', text:'#a990e0', dim:'#1a1230',  border:'#2d1e50'},
+  amber:  {dot:'#e09030', text:'#f0b864', dim:'#2e1e08',  border:'#4a3010'},
+  green:  {dot:'#1fba7a', text:'#4fd4a0', dim:'#0a2e1e',  border:'#0d3325'},
+};
+
+function defaultData() {
+  return {
+    weeks: [
+      {
+        id: uid(), label:'Week 1', title:'STM32 basics', board:'NUCLEO-F401RE', color:'blue',
+        goal:'Get comfortable with STM32CubeIDE and HAL. Understand the F401 clock tree. Write GPIO, UART, and timer code without looking at examples.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Install STM32CubeIDE and CubeMX',done:false},
+          {id:uid(),text:'Create first project: GPIO + LED blink via HAL',done:false},
+          {id:uid(),text:'Configure UART with printf redirect',done:false},
+          {id:uid(),text:'Use TIM interrupt to toggle LED at precise interval',done:false},
+          {id:uid(),text:'Read datasheet: F401 clock tree and RCC registers',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 2', title:'I2C + VL53L5CX ToF', board:'F401 + X-NUCLEO-53L5A1', color:'blue',
+        goal:'Stack the ToF shield and get live 8×8 zone data over UART. Understand I2C framing and the ULD driver API.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Stack X-NUCLEO-53L5A1 shield onto Nucleo',done:false},
+          {id:uid(),text:'Import ST VL53L5CX ULD driver into project',done:false},
+          {id:uid(),text:'Configure I2C1 at 400 kHz via CubeMX',done:false},
+          {id:uid(),text:'Read 8×8 zone distance array and print over UART',done:false},
+          {id:uid(),text:'Add threshold logic: object < 500 mm → LED on',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 3', title:'Interrupts + DMA', board:'NUCLEO-F401RE', color:'blue',
+        goal:'Move from polling to interrupt-driven and DMA-backed code. Measure IRQ latency with logic analyzer.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Configure EXTI interrupt on user button (PA0)',done:false},
+          {id:uid(),text:'Set up TIM3 PWM output on PA6',done:false},
+          {id:uid(),text:'Configure DMA for UART TX (non-blocking sends)',done:false},
+          {id:uid(),text:'Map average ToF zone distance to PWM duty cycle',done:false},
+          {id:uid(),text:'Profile IRQ latency with logic analyzer',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 4', title:'FreeRTOS', board:'NUCLEO-F401RE', color:'blue',
+        goal:'Run three concurrent tasks communicating through a queue and semaphore. Understand stack sizing and priority.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Enable FreeRTOS via CubeMX (CMSIS-OS v2)',done:false},
+          {id:uid(),text:'Task 1: read ToF every 100 ms',done:false},
+          {id:uid(),text:'Task 2: process 8×8 zones, compute centroid',done:false},
+          {id:uid(),text:'Task 3: UART log via message queue',done:false},
+          {id:uid(),text:'Add binary semaphore between Task 1 and Task 2',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 5', title:'Low-power patterns', board:'NUCLEO-L4R5ZI-P', color:'teal',
+        goal:'Get the MCU into Stop 2, wake on RTC, measure real current. Target < 10 µA in sleep.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Move ToF shield to L4R5ZI-P',done:false},
+          {id:uid(),text:'Configure RTC with LSE crystal in CubeMX',done:false},
+          {id:uid(),text:'Enter Stop 2 mode after each ToF read',done:false},
+          {id:uid(),text:'Wake on RTC alarm every 30 seconds',done:false},
+          {id:uid(),text:'Measure Stop 2 current with multimeter',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 6', title:'TrustZone security', board:'NUCLEO-U545RE-Q', color:'coral',
+        goal:'Understand SAU partitioning. Store secrets in Secure world, expose only a signed payload to Non-Secure.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Set up TrustZone partition in CubeMX (SAU regions)',done:false},
+          {id:uid(),text:'Secure project: store fake device key in Secure SRAM',done:false},
+          {id:uid(),text:'Non-Secure project: call Secure API via NSC function',done:false},
+          {id:uid(),text:'Implement HMAC-like signing of ToF payload',done:false},
+          {id:uid(),text:'Print signed payload in Non-Secure UART log',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 7', title:'Wi-Fi + MQTT', board:'B-U585I-IOT02A', color:'violet',
+        goal:'Get the Discovery board publishing sensor data over Wi-Fi to an MQTT broker. Verify end-to-end in MQTT Explorer.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'Install Mosquitto broker on PC or use HiveMQ',done:false},
+          {id:uid(),text:'Move ToF shield to Discovery board Arduino headers',done:false},
+          {id:uid(),text:'Init Wi-Fi (MXCHIP EMW3080) with AT commands',done:false},
+          {id:uid(),text:'Connect to broker and publish to stm32/tof',done:false},
+          {id:uid(),text:'Verify messages in MQTT Explorer',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      },
+      {
+        id: uid(), label:'Week 8', title:'Capstone — full IoT node', board:'B-U585I-IOT02A', color:'violet',
+        goal:'Tie everything together: FreeRTOS + ToF + onboard sensors + Wi-Fi MQTT + BLE beacon + low-power sleep between cycles.',
+        notes:'',
+        tasks:[
+          {id:uid(),text:'FreeRTOS Task 1: read ToF every 100 ms',done:false},
+          {id:uid(),text:'FreeRTOS Task 2: read HTS221 + LPS22HH',done:false},
+          {id:uid(),text:'Task 3: build JSON {temp, humidity, pressure, presence}',done:false},
+          {id:uid(),text:'Task 4: publish via Wi-Fi MQTT on presence event',done:false},
+          {id:uid(),text:'Configure BLE to advertise beacon on detection',done:false},
+          {id:uid(),text:'Add Stop mode between cycles, wake on ToF interrupt',done:false},
+          {id:uid(),text:'End-to-end test: sensor → MQTT + BLE simultaneously',done:false},
+        ],
+        days: DAYS.map(d => ({name:d, tasks:[]}))
+      }
+    ]
+  };
+}
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+
+let db = (() => { try { return JSON.parse(localStorage.getItem(SK)) || defaultData(); } catch { return defaultData(); } })();
+let currentWeekId = db.weeks[0]?.id || null;
+let editingWeekId = null;
+let pendingDayIdx = null;
+
+function save() { try { localStorage.setItem(SK, JSON.stringify(db)); } catch {} }
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+function renderSidebar() {
+  const list = document.getElementById('sidebar-list');
+  let totalTasks=0, doneTasks=0;
+  list.innerHTML = '';
+
+  db.weeks.forEach(wk => {
+    const c = COLORS[wk.color] || COLORS.blue;
+    const done = wk.tasks.filter(t=>t.done).length;
+    const total = wk.tasks.length;
+    totalTasks += total; doneTasks += done;
+    const pct = total ? Math.round(done/total*100) : 0;
+
+    const item = document.createElement('div');
+    item.className = 'week-item' + (wk.id === currentWeekId ? ' active' : '');
+    item.onclick = () => selectWeek(wk.id);
+    item.innerHTML = `
+      <div class="wi-dot" style="background:${done===total&&total>0?c.dot:'transparent'};border-color:${c.dot}"></div>
+      <div class="wi-info">
+        <div class="wi-label" style="color:${wk.id===currentWeekId?c.text:'var(--text)'}">${wk.label}: ${wk.title}</div>
+        <div class="wi-sub">${wk.board}</div>
+      </div>
+      <span class="wi-badge" style="background:${c.dim};color:${c.text};border-color:${c.border}">${pct}%</span>`;
+    list.appendChild(item);
+  });
+
+  const pct = totalTasks ? Math.round(doneTasks/totalTasks*100) : 0;
+  document.getElementById('sb-weeks').textContent = db.weeks.length;
+  document.getElementById('sb-done').textContent = doneTasks;
+  document.getElementById('sb-pct').textContent = pct + '%';
+  document.getElementById('top-fill').style.width = pct + '%';
+  document.getElementById('top-pct').textContent = pct + '%';
+}
+
+function selectWeek(id) {
+  currentWeekId = id;
+  renderSidebar();
+  renderWeek();
+}
+
+/* ═══════════════════════════════════════════
+   MAIN WEEK VIEW
+═══════════════════════════════════════════ */
+function renderWeek() {
+  const view = document.getElementById('week-view');
+  const empty = document.getElementById('empty-state');
+  const wk = db.weeks.find(w=>w.id===currentWeekId);
+
+  if (!wk) { view.style.display='none'; empty.style.display='flex'; return; }
+  empty.style.display='none'; view.style.display='flex';
+
+  const c = COLORS[wk.color] || COLORS.blue;
+  const done = wk.tasks.filter(t=>t.done).length;
+  const total = wk.tasks.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  const R=28, circ=2*Math.PI*R;
+  const offset = circ - (pct/100)*circ;
+
+  // Day tasks done count
+  let dayDone=0, dayTotal=0;
+  wk.days.forEach(d=>{ d.tasks.forEach(t=>{ dayTotal++; if(t.done) dayDone++; }); });
+
+  view.innerHTML = `
+    <!-- Header -->
+    <div class="week-hdr">
+      <div class="week-hdr-left">
+        <div class="week-eyebrow" style="color:${c.text}">
+          ${wk.label}
+          <span class="board-chip" style="color:${c.text};border-color:${c.border};background:${c.dim}">${wk.board}</span>
+        </div>
+        <div class="week-name-wrap">
+          <input class="week-name" value="${esc(wk.title)}" placeholder="Week title"
+            oninput="updateField('title',this.value)"
+            style="font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.2;border:none;background:transparent;color:var(--text);outline:none;width:100%">
+        </div>
+        <div class="edit-hint" style="color:var(--dim);font-size:11px;margin-top:2px">Click any field to edit · changes save automatically</div>
+      </div>
+      <div class="week-hdr-right">
+        <button class="btn-icon" onclick="openEditWeek('${wk.id}')">Edit</button>
+        <button class="btn-danger" onclick="deleteWeek('${wk.id}')">Delete</button>
+      </div>
+    </div>
+
+    <!-- Ring + info -->
+    <div class="ring-wrap">
+      <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+        <circle class="ring-bg" cx="36" cy="36" r="${R}"/>
+        <circle class="ring-fg" cx="36" cy="36" r="${R}"
+          stroke="${c.dot}"
+          stroke-dasharray="${circ}"
+          stroke-dashoffset="${offset}"/>
+        <text class="ring-label" x="36" y="39" text-anchor="middle">${pct}%</text>
+      </svg>
+      <div class="ring-info">
+        <div class="ring-title">${done} of ${total} tasks complete</div>
+        <div class="ring-detail" style="font-family:var(--mono);font-size:12px;color:var(--sub)">${dayDone}/${dayTotal} daily slots done</div>
+      </div>
+    </div>
+
+    <!-- Week goal -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Week goal</span>
+      </div>
+      <textarea class="goal-area" placeholder="What do you want to achieve this week? Write your outcome goal here..."
+        oninput="updateField('goal',this.value)">${esc(wk.goal)}</textarea>
+    </div>
+
+    <!-- Daily plan -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Daily plan</span>
+        <span style="font-size:11px;color:var(--dim);font-family:var(--mono)">click + to add a daily task per day</span>
+      </div>
+      <div class="days-grid" id="days-grid"></div>
+    </div>
+
+    <!-- Task checklist -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Task checklist</span>
+        <span style="font-size:11px;color:var(--dim);font-family:var(--mono)">${done}/${total}</span>
+      </div>
+      <div id="task-list"></div>
+      <div class="add-task-row">
+        <input class="add-task-input" id="new-task-input" placeholder="Add task… (press Enter)" maxlength="120"
+          onkeydown="if(event.key==='Enter')addTask()">
+        <button class="btn-primary" onclick="addTask()">Add</button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">Notes</span>
+      </div>
+      <textarea class="notes-area" placeholder="Paste links, paste errors, jot down ideas..."
+        oninput="updateField('notes',this.value)">${esc(wk.notes)}</textarea>
+    </div>
+  `;
+
+  renderDays(wk);
+  renderTasks(wk);
+}
+
+function renderDays(wk) {
+  const grid = document.getElementById('days-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  wk.days.forEach((day, di) => {
+    const allDone = day.tasks.length > 0 && day.tasks.every(t=>t.done);
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    const taskHTML = day.tasks.map((t,ti) => `
+      <div class="day-task ${t.done?'done-task':''}" id="dt-${di}-${ti}">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleDayTask(${di},${ti},this.checked)">
+        <span class="day-task-text">${esc(t.text)}</span>
+        <button class="day-task-del" onclick="deleteDayTask(${di},${ti})" title="Remove">×</button>
+      </div>`).join('');
+    col.innerHTML = `
+      <div class="day-head">
+        <div class="day-name-row">
+          <span>${day.name}</span>
+          <span class="day-dot ${allDone?'done-day':''}"></span>
+        </div>
+      </div>
+      <div class="day-body">
+        ${taskHTML}
+        <button class="day-add-btn" onclick="openDayModal(${di})">+</button>
+      </div>`;
+    grid.appendChild(col);
+  });
+}
+
+function renderTasks(wk) {
+  const list = document.getElementById('task-list');
+  if (!list) return;
+  list.innerHTML = '';
+  wk.tasks.forEach((t, ti) => {
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    row.innerHTML = `
+      <input type="checkbox" class="task-cb" ${t.done?'checked':''} onchange="toggleTask(${ti},this.checked)">
+      <span class="task-text ${t.done?'done-text':''}" contenteditable="true"
+        onblur="updateTaskText(${ti},this.textContent)"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur()}">${esc(t.text)}</span>
+      <div class="task-actions">
+        <button class="task-del" onclick="deleteTask(${ti})" title="Delete">×</button>
+      </div>`;
+    list.appendChild(row);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   MUTATIONS
+═══════════════════════════════════════════ */
+function getWeek() { return db.weeks.find(w=>w.id===currentWeekId); }
+
+function updateField(field, val) {
+  const wk = getWeek(); if(!wk) return;
+  wk[field] = val; save();
+  if(field==='title') renderSidebar();
+}
+
+function toggleTask(ti, checked) {
+  const wk = getWeek(); if(!wk) return;
+  wk.tasks[ti].done = checked; save();
+  renderSidebar();
+  // update just the label
+  const labels = document.querySelectorAll('.task-text');
+  if(labels[ti]) labels[ti].className = 'task-text' + (checked?' done-text':'');
+  // re-render ring
+  const done = wk.tasks.filter(t=>t.done).length;
+  const total = wk.tasks.length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  updateRing(pct, done, total, COLORS[wk.color]||COLORS.blue);
+  updateTaskCount(done, total);
+}
+
+function updateRing(pct, done, total, c) {
+  const R=28, circ=2*Math.PI*R, offset=circ-(pct/100)*circ;
+  const fg = document.querySelector('.ring-fg');
+  const lbl = document.querySelector('.ring-label');
+  const info = document.querySelector('.ring-title');
+  if(fg){ fg.setAttribute('stroke-dashoffset', offset); fg.setAttribute('stroke', c.dot); }
+  if(lbl) lbl.textContent = pct+'%';
+  if(info) info.textContent = `${done} of ${total} tasks complete`;
+}
+
+function updateTaskCount(done, total) {
+  const el = document.querySelector('#task-list + .add-task-row + .section .section-title + span') ||
+    document.querySelector('.section-head span[style*="dim"]');
+  // simpler: just update the header span
+  document.querySelectorAll('.section-head').forEach(sh => {
+    if(sh.querySelector('.section-title')?.textContent === 'Task checklist') {
+      const sp = sh.querySelectorAll('span')[1];
+      if(sp) sp.textContent = `${done}/${total}`;
+    }
+  });
+}
+
+function addTask() {
+  const inp = document.getElementById('new-task-input');
+  const text = inp?.value.trim(); if(!text) return;
+  const wk = getWeek(); if(!wk) return;
+  wk.tasks.push({id:uid(), text, done:false});
+  inp.value = ''; save();
+  renderTasks(wk);
+  renderSidebar();
+}
+
+function deleteTask(ti) {
+  const wk = getWeek(); if(!wk) return;
+  wk.tasks.splice(ti,1); save();
+  renderTasks(wk); renderSidebar();
+  const done=wk.tasks.filter(t=>t.done).length, total=wk.tasks.length;
+  updateRing(total?Math.round(done/total*100):0, done, total, COLORS[wk.color]||COLORS.blue);
+  updateTaskCount(done,total);
+}
+
+function updateTaskText(ti, text) {
+  const wk = getWeek(); if(!wk) return;
+  wk.tasks[ti].text = text.trim(); save();
+}
+
+function toggleDayTask(di, ti, checked) {
+  const wk = getWeek(); if(!wk) return;
+  wk.days[di].tasks[ti].done = checked; save();
+  renderDays(wk);
+  // update ring detail
+  let dd=0,dt=0;
+  wk.days.forEach(d=>{ d.tasks.forEach(t=>{ dt++; if(t.done) dd++; }); });
+  const det = document.querySelector('.ring-detail');
+  if(det) det.textContent = `${dd}/${dt} daily slots done`;
+}
+
+function deleteDayTask(di, ti) {
+  const wk = getWeek(); if(!wk) return;
+  wk.days[di].tasks.splice(ti,1); save();
+  renderDays(wk);
+}
+
+/* ═══════════════════════════════════════════
+   WEEK MODAL
+═══════════════════════════════════════════ */
+function openAddWeek() {
+  editingWeekId = null;
+  document.getElementById('modal-title').textContent = 'Add week';
+  document.getElementById('m-label').value = `Week ${db.weeks.length+1}`;
+  document.getElementById('m-title').value = '';
+  document.getElementById('m-board').value = '';
+  document.getElementById('m-color').value = 'blue';
+  document.getElementById('week-modal').classList.remove('hidden');
+}
+
+function openEditWeek(id) {
+  const wk = db.weeks.find(w=>w.id===id); if(!wk) return;
+  editingWeekId = id;
+  document.getElementById('modal-title').textContent = 'Edit week';
+  document.getElementById('m-label').value = wk.label;
+  document.getElementById('m-title').value = wk.title;
+  document.getElementById('m-board').value = wk.board;
+  document.getElementById('m-color').value = wk.color;
+  document.getElementById('week-modal').classList.remove('hidden');
+}
+
+function closeModal() { document.getElementById('week-modal').classList.add('hidden'); }
+
+function saveWeek() {
+  const label = document.getElementById('m-label').value.trim();
+  const title = document.getElementById('m-title').value.trim();
+  const board = document.getElementById('m-board').value.trim();
+  const color = document.getElementById('m-color').value;
+  if(!label||!title) return;
+
+  if(editingWeekId) {
+    const wk = db.weeks.find(w=>w.id===editingWeekId);
+    if(wk){ Object.assign(wk,{label,title,board,color}); }
+  } else {
+    db.weeks.push({id:uid(),label,title,board,color,goal:'',notes:'',tasks:[],days:DAYS.map(d=>({name:d,tasks:[]}))});
+    currentWeekId = db.weeks[db.weeks.length-1].id;
+  }
+  save(); closeModal(); renderSidebar(); renderWeek();
+  toast('Saved');
+}
+
+function deleteWeek(id) {
+  if(!confirm('Delete this week and all its data?')) return;
+  db.weeks = db.weeks.filter(w=>w.id!==id);
+  if(currentWeekId===id) currentWeekId = db.weeks[0]?.id||null;
+  save(); renderSidebar(); renderWeek();
+  toast('Deleted');
+}
+
+/* ═══════════════════════════════════════════
+   DAY MODAL
+═══════════════════════════════════════════ */
+function openDayModal(di) {
+  pendingDayIdx = di;
+  document.getElementById('dm-text').value = '';
+  document.getElementById('day-modal').classList.remove('hidden');
+  setTimeout(()=>document.getElementById('dm-text').focus(),50);
+}
+function closeDayModal() { document.getElementById('day-modal').classList.add('hidden'); pendingDayIdx=null; }
+function saveDayTask() {
+  const text = document.getElementById('dm-text').value.trim();
+  if(!text||pendingDayIdx===null) return;
+  const wk = getWeek(); if(!wk) return;
+  wk.days[pendingDayIdx].tasks.push({id:uid(),text,done:false});
+  save(); closeDayModal(); renderDays(wk);
+}
+document.getElementById('dm-text').addEventListener('keydown', e => { if(e.key==='Enter') saveDayTask(); });
+
+/* ═══════════════════════════════════════════
+   IMPORT / EXPORT
+═══════════════════════════════════════════ */
+function exportData() {
+  const blob = new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'stm32_tracker.json';
+  a.click(); toast('Exported');
+}
+function triggerImport() { document.getElementById('import-input').click(); }
+function importData(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      db = JSON.parse(ev.target.result);
+      currentWeekId = db.weeks[0]?.id||null;
+      save(); renderSidebar(); renderWeek(); toast('Imported');
+    } catch { toast('Invalid file'); }
+  };
+  r.readAsText(file);
+  e.target.value='';
+}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// close modals on bg click
+document.getElementById('week-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+document.getElementById('day-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeDayModal(); });
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+renderSidebar();
+renderWeek();
+</script>
+</body>
+</html>
